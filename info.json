@@ -1,0 +1,12 @@
+{
+  "commit": {
+    "commit": "32178d84ea8116bd2a3ca625a7b93d1b173f4c27",
+    "author": "Rory Nolan <rorynoolan@gmail.com>",
+    "time": "2021-07-03 23:41:16",
+    "files": 1,
+    "merge": false,
+    "message": "Fix the headers in NEWS.md.\n"
+  },
+  "remote": "https://github.com/ropensci/ijtiff",
+  "pkg": "ijtiff"
+}
