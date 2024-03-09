@@ -1,0 +1,12 @@
+{
+  "commit": {
+    "commit": "85bab510632511233b15b87d443997db07a76516",
+    "author": "Rory Nolan <rory@mirvie.com>",
+    "time": "2023-12-13 03:36:37",
+    "files": 3,
+    "merge": false,
+    "message": "Update URLs.\n"
+  },
+  "repo": "https://github.com/ropensci/ijtiff",
+  "pkg": "ijtiff"
+}

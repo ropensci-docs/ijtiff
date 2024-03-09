@@ -1,0 +1,12 @@
+pandoc: 2.16.2
+pkgdown: 2.0.7
+pkgdown_sha: ~
+articles:
+  reading-and-writing-images: reading-and-writing-images.html
+  text-images: text-images.html
+  the-imagej-problem: the-imagej-problem.html
+last_built: 2024-03-09T07:26Z
+urls:
+  reference: https://docs.ropensci.org/ijtiff/reference
+  article: https://docs.ropensci.org/ijtiff/articles
+
