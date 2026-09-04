@@ -1,0 +1,128 @@
+# ijtiff
+
+This is a general purpose TIFF I/O utility for R. The [`tiff`
+package](https://cran.r-project.org/package=tiff) already exists for
+this purpose but `ijtiff` adds some functionality and overcomes some
+bugs therein.
+
+- `ijtiff` can write TIFF files whose pixel values are real
+  (floating-point) numbers; `tiff` cannot.
+- `ijtiff` can read and write *text images*; `tiff` cannot.
+- `tiff` struggles to interpret channel information and gives cryptic
+  errors when reading TIFF files written by the *ImageJ* software;
+  `ijtiff` works smoothly with these images.
+
+The github repo of `ijtiff` is at <https://github.com/ropensci/ijtiff>.
+
+## Installation
+
+You can install the released version of `ijtiff` from
+[CRAN](https://CRAN.R-project.org/package=ijtiff) with:
+
+``` r
+
+install.packages("ijtiff")
+```
+
+You can install the released version of `ijtiff` from
+[GitHub](https://github.com/ropensci/ijtiff) with:
+
+``` r
+
+devtools::install_github("ropensci/ijtiff")
+```
+
+## How to use `ijtiff`
+
+The [Reading and Writing
+Images](https://docs.ropensci.org/ijtiff/articles/reading-and-writing-images.html)
+article is probably all you need to know.
+
+## More about `ijtiff`
+
+- [Text
+  Images](https://docs.ropensci.org/ijtiff/articles/text-images.html)
+  tells you more about what *text images* are and why you might ever use
+  them.
+- [The *ImageJ*
+  Problem](https://docs.ropensci.org/ijtiff/articles/the-imagej-problem.html)
+  explains the problem that `tiff` has when reading TIFF files written
+  by *ImageJ* and how `ijtiff` fixes this problem.
+
+# Package index
+
+## All functions
+
+- [`as.raster(`*`<ijtiff_img>`*`)`](https://docs.ropensci.org/ijtiff/reference/as.raster.ijtiff_img.md)
+  : Convert an ijtiff_img object to a raster object for plotting
+
+- [`as_EBImage()`](https://docs.ropensci.org/ijtiff/reference/as_EBImage.md)
+  :
+
+  Convert an ijtiff_img to an
+  [EBImage::Image](https://rdrr.io/pkg/EBImage/man/Image.html).
+
+- [`count_frames()`](https://docs.ropensci.org/ijtiff/reference/count_frames.md)
+  [`frames_count()`](https://docs.ropensci.org/ijtiff/reference/count_frames.md)
+  : Count the number of frames in a TIFF file.
+
+- [`display()`](https://docs.ropensci.org/ijtiff/reference/display.md) :
+  Basic image display.
+
+- [`get_supported_tags()`](https://docs.ropensci.org/ijtiff/reference/get_supported_tags.md)
+  : Get supported TIFF tags
+
+- [`ijtiff`](https://docs.ropensci.org/ijtiff/reference/ijtiff.md)
+  [`ijtiff-package`](https://docs.ropensci.org/ijtiff/reference/ijtiff.md)
+  :
+
+  `ijtiff`: TIFF I/O for *ImageJ* users
+
+- [`ijtiff_img()`](https://docs.ropensci.org/ijtiff/reference/ijtiff_img.md)
+  [`as_ijtiff_img()`](https://docs.ropensci.org/ijtiff/reference/ijtiff_img.md)
+  :
+
+  `ijtiff_img` class.
+
+- [`linescan_to_stack()`](https://docs.ropensci.org/ijtiff/reference/linescan-conversion.md)
+  [`stack_to_linescan()`](https://docs.ropensci.org/ijtiff/reference/linescan-conversion.md)
+  : Rejig linescan images.
+
+- [`print(`*`<ijtiff_img>`*`)`](https://docs.ropensci.org/ijtiff/reference/print.ijtiff_img.md)
+  :
+
+  Print method for an `ijtiff_img`.
+
+- [`read_tags()`](https://docs.ropensci.org/ijtiff/reference/read_tags.md)
+  [`tags_read()`](https://docs.ropensci.org/ijtiff/reference/read_tags.md)
+  : Read TIFF tag information without actually reading the image array.
+
+- [`read_tif()`](https://docs.ropensci.org/ijtiff/reference/read_tif.md)
+  [`tif_read()`](https://docs.ropensci.org/ijtiff/reference/read_tif.md)
+  : Read an image stored in the TIFF format
+
+- [`write_txt_img()`](https://docs.ropensci.org/ijtiff/reference/text-image-io.md)
+  [`read_txt_img()`](https://docs.ropensci.org/ijtiff/reference/text-image-io.md)
+  [`txt_img_write()`](https://docs.ropensci.org/ijtiff/reference/text-image-io.md)
+  [`txt_img_read()`](https://docs.ropensci.org/ijtiff/reference/text-image-io.md)
+  : Read/write an image array to/from disk as text file(s).
+
+- [`tif_tags_reference()`](https://docs.ropensci.org/ijtiff/reference/tif_tags_reference.md)
+  : TIFF tag reference.
+
+- [`write_tif()`](https://docs.ropensci.org/ijtiff/reference/write_tif.md)
+  [`tif_write()`](https://docs.ropensci.org/ijtiff/reference/write_tif.md)
+  : Write images in TIFF format
+
+# Articles
+
+### All vignettes
+
+- [Reading and Writing
+  Images](https://docs.ropensci.org/ijtiff/articles/reading-and-writing-images.md):
+- [Text
+  Images](https://docs.ropensci.org/ijtiff/articles/text-images.md):
+- [The \_ImageJ\_
+  Problem](https://docs.ropensci.org/ijtiff/articles/the-imagej-problem.md):
+- [Working with TIFF
+  Tags](https://docs.ropensci.org/ijtiff/articles/tiff-tags.md):

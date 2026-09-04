@@ -1,0 +1,127 @@
+# Read an image stored in the TIFF format
+
+Reads an image from a TIFF file/content into a numeric array or list.
+
+## Usage
+
+``` r
+read_tif(
+  path,
+  frames = "all",
+  list_safety = "error",
+  msg = TRUE,
+  convert = "auto"
+)
+
+tif_read(
+  path,
+  frames = "all",
+  list_safety = "error",
+  msg = TRUE,
+  convert = "auto"
+)
+```
+
+## Arguments
+
+- path:
+
+  A string, the path to the tiff file to read. `path` may also be a raw
+  vector of TIFF bytes, read in-memory.
+
+- frames:
+
+  Which frames do you want to read. Default all. To read the 2nd and 7th
+  frames, use `frames = c(2, 7)`.
+
+- list_safety:
+
+  A string. This is for type safety of this function. Since returning a
+  list is unlikely and probably unexpected, the default is to error. You
+  can instead opt to throw a warning (`list_safety = "warning"`) or to
+  just return the list quietly (`list_safety = "none"`).
+
+- msg:
+
+  Print an informative message about the image being read?
+
+- convert:
+
+  One of `"auto"` (default), `"force"`, `"never"`, controlling libtiff's
+  RGBA decoder. `"auto"` reads every image directly and only falls back
+  to RGBA for images the direct decoder cannot parse at all (certain
+  tiled/planar or odd-bit-depth files that would otherwise error),
+  preserving existing behaviour for all currently-readable images.
+  `"force"` always decodes via RGBA, converting any colorspace (YCbCr,
+  CMYK, CIELab, ...) to 8-bit RGB(A) — use this to read such images in
+  RGB. `"never"` never uses the RGBA decoder and errors on images the
+  direct decoder cannot parse. Note: for images with frames of differing
+  dimensions read as a list, the converted arrays keep their raw
+  per-frame dimensions and are not reconciled.
+
+## Value
+
+An object of class
+[ijtiff_img](https://docs.ropensci.org/ijtiff/reference/ijtiff_img.md)
+or a list of
+[ijtiff_img](https://docs.ropensci.org/ijtiff/reference/ijtiff_img.md)s.
+
+## Details
+
+TIFF files have the capability to store multiple images, each having
+multiple channels. Typically, these multiple images represent the
+sequential frames in a time-stack or z-stack of images and hence each of
+these images has the same dimension. If this is the case, they are all
+read into a single 4-dimensional array `img` where `img` is indexed as
+`img[y, x, channel, frame]` (where we have `y, x` to comply with the
+conventional `row, col` indexing of a matrix - it means that images
+displayed as arrays of numbers in the R console will have the correct
+orientation). However, it is possible that the images in the TIFF file
+have varying dimensions (most people have never seen this), in which
+case they are read in as a list of images, where again each element of
+the list is a 4-dimensional array `img`, indexed as
+`img[y, x, channel, frame]`.
+
+A (somewhat random) set of TIFF tags are attributed to the read image.
+These are ImageDepth, BitsPerSample, SamplesPerPixel, SampleFormat,
+PlanarConfig, Compression, Threshholding, XResolution, YResolution,
+ResolutionUnit, Indexed and Orientation. More tags should be added in a
+subsequent version of this package. You can read about TIFF tags at
+https://www.awaresystems.be/imaging/tiff/tifftags.html.
+
+TIFF images can have a wide range of internal representations, but only
+the most common in image processing are supported (8-bit, 16-bit and
+32-bit integer and 32-bit float samples, and 12-bit grayscale integer
+samples).
+
+## Note
+
+- 12-bit grayscale TIFFs are supported (values returned in 0..4095,
+  assuming big-endian packing); 12-bit colour, colormap, and tiled
+  12-bit TIFFs are not.
+
+- There is no standard for packing order for TIFFs beyond 8-bit so we
+  assume big-endian packing.
+
+- RGBA conversion (`convert = "auto"`/`"force"`) is unavailable for
+  tiled separate-planar images, which therefore cannot be read at all
+
+.
+
+## See also
+
+[`write_tif()`](https://docs.ropensci.org/ijtiff/reference/write_tif.md)
+
+## Author
+
+Simon Urbanek wrote most of this code for the 'tiff' package. Rory Nolan
+lifted it from there and changed it around a bit for this 'ijtiff'
+package. Credit should be directed towards Lord Urbanek.
+
+## Examples
+
+``` r
+img <- read_tif(system.file("img", "Rlogo.tif", package = "ijtiff"))
+#> Reading image from /github/home/R/x86_64-pc-linux-gnu-library/4.6/ijtiff/img/Rlogo.tif
+#> Reading an 8-bit, integer image with dimensions 76x100x4x1 (y,x,channel,frame) . . .
+```
