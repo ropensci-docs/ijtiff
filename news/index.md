@@ -1,0 +1,520 @@
+# Changelog
+
+## `ijtiff` 3.3.0
+
+### NEW FEATURES
+
+- [`read_tif()`](https://docs.ropensci.org/ijtiff/reference/read_tif.md)
+  and
+  [`read_tags()`](https://docs.ropensci.org/ijtiff/reference/read_tags.md)
+  can read directly from an in-memory raw vector of TIFF bytes;
+  `write_tif(img, path = NULL)` writes to memory and returns the TIFF
+  file as a raw vector.
+- 12-bit grayscale TIFFs are now readable (values returned in 0..4095,
+  big-endian packing assumed).
+- Signed-integer TIFFs now read with correct negative values (previously
+  warned and read as unsigned).
+- [`read_tif()`](https://docs.ropensci.org/ijtiff/reference/read_tif.md)
+  gains a `convert` argument. `convert = "force"` decodes any image via
+  libtiff’s RGBA reader, converting exotic colorspaces (YCbCr,
+  CMYK/separated, CIELab, …) to 8-bit RGB(A) — useful for images that
+  previously read in a non-RGB colorspace or (for JPEG-YCbCr) not
+  meaningfully at all. `convert = "auto"` (the default) preserves
+  existing behaviour for every currently-readable image and only uses
+  the RGBA reader as a fallback for images the direct decoder cannot
+  parse at all. `convert = "never"` disables it.
+- [`write_tif()`](https://docs.ropensci.org/ijtiff/reference/write_tif.md)
+  can write `PHOTOMETRIC_RGB` images via
+  `tags_to_write = list(photometric = "RGB")`; the default remains
+  `BlackIsZero`. Supported TIFF metadata (including
+  `PhotometricInterpretation`) now round-trips through read→write
+  automatically.
+
+### BEHAVIOUR CHANGES
+
+- Because photometric now round-trips, an image read from a
+  `WhiteIsZero` TIFF is re-written as `WhiteIsZero` (previously
+  `BlackIsZero`). Unwritable source photometrics
+  (Palette/CMYK/YCbCr/CIELab/…) are silently not written unless you
+  convert the image.
+
+### BUG FIXES
+
+- Fixed a stale check that caused the “Reading … image” message to
+  always say “float” regardless of the true sample format.
+- [`read_tif()`](https://docs.ropensci.org/ijtiff/reference/read_tif.md)/[`read_tags()`](https://docs.ropensci.org/ijtiff/reference/read_tags.md)
+  error messages for unsupported images now render their values
+  correctly (previously a `va_list` misuse garbled the numbers).
+- Fixed a memory-safety bug where reading a corrupt/truncated TIFF that
+  errored mid-decode could leave a dangling handle and crash (segfault)
+  on a subsequent read or at garbage collection. The TIFF handle’s state
+  is now heap-owned and cleaned up by its finalizer, removing a latent
+  double-close/use-after-free.
+
+## `ijtiff` 3.2.0
+
+CRAN release: 2026-01-26
+
+### NEW FEATURES
+
+- [`write_tif()`](https://docs.ropensci.org/ijtiff/reference/write_tif.md)
+  now uses a `tags_to_write` parameter that accepts a named list of TIFF
+  tags, consolidating support for all writable tags (previously used
+  individual parameters).
+- Support for writing `imagedescription` TIFF tag (tag 270) for OME-TIFF
+  metadata.
+- Automatic metadata preservation: TIFF tags are automatically extracted
+  from image attributes (e.g., from
+  [`read_tif()`](https://docs.ropensci.org/ijtiff/reference/read_tif.md))
+  and included when writing, enabling round-trip editing without
+  metadata loss.
+- Tag name normalization: tag names in `tags_to_write` are now
+  case-insensitive and ignore hyphens/underscores.
+- Compression and bits-per-sample overrides: `tags_to_write` can now
+  override `compression` and `bits_per_sample` parameters.
+
+### MINOR IMPROVEMENTS
+
+- Replace [`vapply()`](https://rdrr.io/r/base/lapply.html) with
+  [`purrr::map_chr()`](https://purrr.tidyverse.org/reference/map.html)
+  in tag normalization for cleaner, more consistent code style.
+- Refactored argument checking logic for better organization.
+
+### TESTS
+
+- Add comprehensive test suite for automatic metadata pass-through and
+  attribute tag handling (39 new tests).
+- Add tests for compression override via `tags_to_write` (11 tests).
+- Add tests for `bits_per_sample` override via `tags_to_write` (9
+  tests).
+
+## `ijtiff` 3.1.3
+
+CRAN release: 2025-04-05
+
+### MINOR IMPROVEMENTS
+
+- Fix `PROTECT`ion error.
+
+## `ijtiff` 3.1.2
+
+### BUG FIXES
+
+Doc fix for
+[`write_tif()`](https://docs.ropensci.org/ijtiff/reference/write_tif.md).
+See [issue](https://github.com/ropensci/ijtiff/issues/23)
+[\#23](https://github.com/ropensci/ijtiff/issues/23).
+
+## `ijtiff` 3.1.1
+
+CRAN release: 2025-03-21
+
+### BUG FIXES
+
+- Fix a `PROTECT`ion error in `tags.c`.
+
+## `ijtiff` 3.1.0
+
+CRAN release: 2025-03-10
+
+### MINOR IMPROVEMENTS
+
+- [`display()`](https://docs.ropensci.org/ijtiff/reference/display.md)
+  now uses base R’s `graphics` and `grDevices` so the dependency on the
+  (large) `imager` package is removed.
+
+### BUG FIXES
+
+- Fixed memory leaks in tag handling code by ensuring proper buffer
+  cleanup.
+- Added TIFF file validation to prevent memory leaks when handling
+  invalid files.
+- Improved error messages for invalid TIFF files.
+- All tags now included in
+  [`print()`](https://rdrr.io/r/base/print.html) method.
+
+## `ijtiff` 3.0.0
+
+CRAN release: 2025-03-02
+
+### NEW FEATURES
+
+- Support almost all tags that `libtiff` does.
+  - See the list at
+    <https://libtiff.gitlab.io/libtiff/functions/TIFFGetField.html>.
+  - Willing to support others, just open an issue to make a feature
+    request.
+
+## `ijtiff` 2.3.5
+
+CRAN release: 2025-01-29
+
+### BUG FIXES
+
+- Use basic image display in vignettes. `EBImage` was causing integer
+  overflow.
+
+## `ijtiff` 2.3.4
+
+CRAN release: 2023-12-13
+
+### BUG FIXES
+
+- Include more (necessary) stuff in `SystemRequirements`.
+
+## `ijtiff` 2.3.3
+
+CRAN release: 2023-10-08
+
+### BUG FIXES
+
+- Ignore `pkg-config` when it says to use `-ljbig` or `-lLerc`.
+
+## `ijtiff` 2.3.2
+
+CRAN release: 2023-07-16
+
+### MINOR IMPROVEMENTS
+
+- Add `libwebp` and `libzstd` to `README` installation instructions.
+
+## `ijtiff` 2.3.1
+
+CRAN release: 2023-05-06
+
+### BUG FIXES
+
+- Fix test for new waldo.
+
+## `ijtiff` 2.3.0
+
+CRAN release: 2023-01-17
+
+### MINOR IMPROVEMENTS
+
+- Use [`rlang::abort()`](https://rlang.r-lib.org/reference/abort.html)
+  and its error message formatting.
+- Move away from `magrittr`’s `%<>%`.
+
+## `ijtiff` 2.2.8
+
+CRAN release: 2022-08-31
+
+### BUG FIXES
+
+- Fix headings in NEWS.md.
+
+## `ijtiff` 2.2.7
+
+CRAN release: 2021-06-28
+
+### BUG FIXES
+
+- Fix for new libtiff using C99’s `<stdint.h>`.
+
+## `ijtiff` 2.2.6
+
+CRAN release: 2021-04-20
+
+### BUG FIXES
+
+- Suppress unhelpful warnings during configure when `pkg-config` doesn’t
+  find info for libtiff.
+- Remove `LazyData` from `DESCRIPTION` (was causing CRAN note).
+
+## `ijtiff` 2.2.5
+
+CRAN release: 2021-01-14
+
+### BUG FIXES
+
+- Typo fix for `configure`. At one point there was a call of
+  `pkg-configs` instead of `pkg-config`.
+- Also now all compile flags from `pkg-config --libs` *and*
+  `pkg-config --libs --static` are used every time.
+
+## `ijtiff` 2.2.4
+
+CRAN release: 2020-11-09
+
+### BUG FIXES
+
+- Fix for `configure` error messages.
+
+## `ijtiff` 2.2.3
+
+CRAN release: 2020-11-01
+
+### BUG FIXES
+
+- Make `configure` more portable by using `sh` instead of `bash`.
+
+## `ijtiff` 2.2.2
+
+CRAN release: 2020-10-18
+
+### BUG FIXES
+
+- Insist on bug-fixed `strex` \>= 1.4.
+
+## `ijtiff` 2.2.1
+
+CRAN release: 2020-10-10
+
+### BUG FIXES
+
+- Insist on `strex` \>= 1.3.1 to avoid a garbage collection issue.
+
+## `ijtiff` 2.2.0
+
+CRAN release: 2020-08-05
+
+### NEW FEATURES
+
+- The package now works on 32-bit Windows (thanks to PR
+  [\#12](https://github.com/ropensci/ijtiff/issues/12) from Jeroen
+  Ooms).
+
+### BUG FIXES
+
+- Fix tests by making use of
+  [`testthat::test_path()`](https://testthat.r-lib.org/reference/test_path.html).
+
+## `ijtiff` 2.1.2
+
+CRAN release: 2020-07-24
+
+### BUG FIXES
+
+- Fix some typos in the vignettes.
+
+## `ijtiff` 2.1.1
+
+CRAN release: 2020-07-04
+
+### BUG FIXES
+
+- Fix a `PROTECT`ion error.
+
+## `ijtiff` 2.1.0
+
+CRAN release: 2020-07-02
+
+### NEW FEATURES
+
+- Add support for images with colormaps (also known as lookup tables
+  (LUTs)).
+- Add a print method for `ijtiff_img`s.
+
+## `ijtiff` 2.0.5
+
+CRAN release: 2020-04-06
+
+### BUG FIXES
+
+- Fix a test that failed due to breaking changes in `tibble`.
+
+## `ijtiff` 2.0.4
+
+CRAN release: 2019-10-25
+
+### MINOR IMPROVEMENTS
+
+- Include rOpenSci docs in `DESCRIPTION` as `URL`.
+
+### BUG FIXES
+
+- Sometimes `pkg-config` declares that `ijtiff` needs JBIG_KIT (compile
+  flag `-ljbig`) at compile time. This is incorrect and it often causes
+  users installation pain. This fix is a hack that removes this compile
+  flag from the `pkg-config` output.
+
+## `ijtiff` 2.0.3
+
+CRAN release: 2019-08-24
+
+### BUG FIXES
+
+- `libjpeg` needs to be in `SystemRequirements`.
+
+## `ijtiff` 2.0.2
+
+CRAN release: 2019-07-06
+
+### BUG FIXES
+
+- For *ImageJ*-written images, if `n_slices` and `n_frames` are both
+  specified, that should be OK if they’re equal.
+
+## `ijtiff` 2.0.1
+
+CRAN release: 2019-06-28
+
+### BUG FIXES
+
+- Insist on latest, bug-fixed `filesstrings` 3.1.5.
+
+## `ijtiff` 2.0.0
+
+CRAN release: 2019-06-10
+
+### BREAKING CHANGES
+
+- `get_tiff_tags_reference()` is now
+  [`tif_tags_reference()`](https://docs.ropensci.org/ijtiff/reference/tif_tags_reference.md).
+- `count_imgs()` is now
+  [`count_frames()`](https://docs.ropensci.org/ijtiff/reference/count_frames.md).
+
+### NEW FEATURES
+
+- It is now possible to read only certain frames of a TIFF image thanks
+  to the `frames` argument of
+  [`read_tif()`](https://docs.ropensci.org/ijtiff/reference/read_tif.md).
+- [`read_tif()`](https://docs.ropensci.org/ijtiff/reference/read_tif.md)
+  and
+  [`read_tags()`](https://docs.ropensci.org/ijtiff/reference/read_tags.md)
+  now have the aliases
+  [`tif_read()`](https://docs.ropensci.org/ijtiff/reference/read_tif.md)
+  and
+  [`tags_read()`](https://docs.ropensci.org/ijtiff/reference/read_tags.md)
+  to comply with the rOpenSci `object_verb()` style.
+
+### BUG FIXES
+
+- Include `sys/types.h` for greater type compatibility.
+
+## `ijtiff` 1.5.1
+
+CRAN release: 2019-05-16
+
+### BUG FIXES
+
+- Require necessary version of `glue`.
+- Fix dimension-related bug in
+  [`as_EBImage()`](https://docs.ropensci.org/ijtiff/reference/as_EBImage.md).
+- Require latest (less-buggy) `filesstrings`.
+
+## `ijtiff` 1.5.0
+
+CRAN release: 2018-10-31
+
+### NEW FEATURES
+
+- Allow ZIP compression (which seems to be the best).
+
+### BUG FIXES
+
+- [`write_txt_img()`](https://docs.ropensci.org/ijtiff/reference/text-image-io.md)
+  was using decimal points for integers (e.g. 3.000 instead of just 3).
+
+## `ijtiff` 1.4.2
+
+CRAN release: 2018-10-07
+
+### BUG FIXES
+
+- Hacky fix for `configure` script to deal with lack of `-ljbig` on
+  Solaris.
+- Trim the package to below 5MB by compressing a few TIFF files.
+
+## `ijtiff` 1.4.1
+
+CRAN release: 2018-09-24
+
+### NEW FEATURES
+
+- The package is now lighter in appearance because it doesn’t explicitly
+  depend on `tibble`.
+
+### BUG FIXES
+
+- The configure script now allows for needing `--static` with
+  `pkg-config`.
+
+## `ijtiff` 1.4.0
+
+CRAN release: 2018-09-10
+
+### NEW FEATURES
+
+- A `pkgdown` website.
+
+### MINOR IMPROVEMENTS
+
+- Better vignettes.
+- Better error messages.
+
+## `ijtiff` 1.3.0
+
+### NEW FEATURES
+
+- Conversion functions
+  [`linescan_to_stack()`](https://docs.ropensci.org/ijtiff/reference/linescan-conversion.md)
+  and
+  [`stack_to_linescan()`](https://docs.ropensci.org/ijtiff/reference/linescan-conversion.md)
+  useful for FCS data.
+
+## `ijtiff` 1.2.0
+
+### MINOR IMPROVEMENTS
+
+- Improved the description of the package in DESCRIPTION, vignette and
+  README.
+- Added a hex sticker.
+- Limited support for tiled images thanks to new author Kent Johnson.
+- [`write_tif()`](https://docs.ropensci.org/ijtiff/reference/write_tif.md)
+  is now slightly (\<10%) faster.
+- [`write_tif()`](https://docs.ropensci.org/ijtiff/reference/write_tif.md)
+  messages are now more informative.
+
+## `ijtiff` 1.1.0
+
+CRAN release: 2018-04-19
+
+### NEW FEATURES
+
+- `count_imgs()` counts the number of images in a TIFF file without
+  reading the images themselves.
+- [`read_tags()`](https://docs.ropensci.org/ijtiff/reference/read_tags.md)
+  reads the tags from TIFF images without reading the images themselves.
+
+### MINOR IMPROVEMENTS
+
+- Now includes citation information.
+- C code is more readable.
+- [`display()`](https://docs.ropensci.org/ijtiff/reference/display.md)
+  is more flexible, accepting 3 and 4-dimensional arrays, just
+  displaying the first frame from the first channel.
+
+### `ijtiff` 1.0.0
+
+### PEER REVIEW
+
+- The package is now peer reviewed by ROpenSci.
+
+### `ijtiff` 0.3.0
+
+### MINOR IMPROVEMENTS
+
+- Improve README and vignette with more tangible and fun example.
+
+### BUG FIXES
+
+- Fix windows `libtiff` issues (thanks to Jeroen Ooms).
+- Found some ImageJ-written TIFFs that weren’t being read correctly and
+  fixed that.
+- Fix `protection stack overflow` error for TIFFs with many images.
+
+### `ijtiff` 0.2.0
+
+- First CRAN release.
+
+### MINOR IMPROVEMENTS
+
+- Include handy shortcuts for 2- and 3-dimensional arrays.
+- Messasges to inform the user about what kind of image is being
+  read/written.
+
+### `ijtiff` 0.1.0
+
+- First github release.
